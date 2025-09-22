@@ -1,0 +1,89 @@
+C:\Users\shubh>nmap --version
+Nmap version 7.98 ( https://nmap.org )
+Platform: i686-pc-windows-windows
+Compiled with: nmap-liblua-5.4.8 openssl-3.0.17 nmap-libssh2-1.11.1 nmap-libz-1.3.1 nmap-libpcre2-10.45 Npcap-1.83 nmap-libdnet-1.18.0 ipv6
+Compiled without:
+Available nsock engines: iocp poll select
+
+C:\Users\shubh>ipconfig
+
+Windows IP Configuration
+
+
+Ethernet adapter Ethernet:
+
+   Media State . . . . . . . . . . . : Media disconnected
+   Connection-specific DNS Suffix  . :
+
+Wireless LAN adapter Local Area Connection* 3:
+
+   Media State . . . . . . . . . . . : Media disconnected
+   Connection-specific DNS Suffix  . :
+
+Wireless LAN adapter Local Area Connection* 12:
+
+   Media State . . . . . . . . . . . : Media disconnected
+   Connection-specific DNS Suffix  . :
+
+Wireless LAN adapter Wi-Fi:
+
+   Connection-specific DNS Suffix  . :
+   IPv6 Address. . . . . . . . . . . : 2401:4900:1cd6:299:b805:c987:a69:7ca0
+   Temporary IPv6 Address. . . . . . : 2401:4900:1cd6:299:18d4:8627:7726:8cc7
+   Link-local IPv6 Address . . . . . : fe80::39a8:b48d:c42e:1e9a%10
+   IPv4 Address. . . . . . . . . . . : 192.168.1.19
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : fe80::1%10
+                                       192.168.1.1
+
+Ethernet adapter Bluetooth Network Connection:
+
+   Media State . . . . . . . . . . . : Media disconnected
+   Connection-specific DNS Suffix  . :
+
+C:\Users\shubh>nmap -sS 192.168.1.0/24
+Starting Nmap 7.98 ( https://nmap.org ) at 2025-09-22 21:27 +0530
+Stats: 0:00:26 elapsed; 251 hosts completed (4 up), 4 undergoing SYN Stealth Scan
+SYN Stealth Scan Timing: About 51.77% done; ETC: 21:28 (0:00:06 remaining)
+Nmap scan report for local.airtelfiber.com (192.168.1.1)
+Host is up (0.0099s latency).
+Not shown: 994 filtered tcp ports (no-response)
+PORT     STATE  SERVICE
+53/tcp   open   domain
+80/tcp   open   http
+443/tcp  open   https
+5555/tcp open   freeciv
+8080/tcp closed http-proxy
+8200/tcp closed trivnet1
+MAC Address: B4:A7:C6:3A:26:D0 (Servercom (India) Private Limited)
+
+Nmap scan report for 192.168.1.3
+Host is up (0.0072s latency).
+All 1000 scanned ports on 192.168.1.3 are in ignored states.
+Not shown: 1000 closed tcp ports (reset)
+MAC Address: F6:E7:24:DF:75:BE (Unknown)
+
+Nmap scan report for 192.168.1.11
+Host is up (0.018s latency).
+All 1000 scanned ports on 192.168.1.11 are in ignored states.
+Not shown: 1000 closed tcp ports (reset)
+MAC Address: 82:7B:2C:69:4A:3A (Unknown)
+
+Nmap scan report for 192.168.1.12
+Host is up (0.0049s latency).
+Not shown: 957 filtered tcp ports (no-response), 41 closed tcp ports (reset)
+PORT     STATE SERVICE
+1080/tcp open  socks
+8888/tcp open  sun-answerbook
+MAC Address: F8:54:B8:25:1B:53 (Amazon Technologies)
+
+Nmap scan report for 192.168.1.19
+Host is up (0.00042s latency).
+Not shown: 996 closed tcp ports (reset)
+PORT      STATE SERVICE
+135/tcp   open  msrpc
+139/tcp   open  netbios-ssn
+445/tcp   open  microsoft-ds
+12345/tcp open  netbus
+
+Nmap done: 256 IP addresses (5 hosts up) scanned in 59.22 seconds
