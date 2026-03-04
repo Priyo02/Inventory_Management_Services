@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Manufacturing Inventory Dashboard</title>
+    <style>
+      :root {
+        --bg: #f4f7f3;
+        --panel: #ffffff;
+        --ink: #1e2b23;
+        --accent: #0f766e;
+        --accent-soft: #d7f3ef;
+        --danger: #b42318;
+        --warn: #b54708;
+        --line: #d6e1d8;
+      }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        background: radial-gradient(circle at 10% 10%, #edf8f6, var(--bg) 45%);
+        color: var(--ink);
+      }
+      .wrap {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 18px;
+      }
+      h1 {
+        margin: 0 0 14px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 12px;
+      }
+      .value {
+        font-size: 1.3rem;
+        font-weight: 700;
+      }
+      .controls,
+      .table-panel,
+      .alerts {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 12px;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+      }
+      input,
+      select,
+      button {
+        padding: 8px;
+        border: 1px solid #bdd0c2;
+        border-radius: 8px;
+      }
+      button {
+        background: var(--accent);
+        color: #fff;
+        border: 0;
+        cursor: pointer;
+      }
+      button.alt {
+        background: #375b53;
+      }
+      button.danger {
+        background: var(--danger);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border-bottom: 1px solid var(--line);
+        padding: 8px;
+        text-align: left;
+        font-size: 0.9rem;
+      }
+      .badge {
+        padding: 3px 7px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+      }
+      .warning {
+        background: #fff4e5;
+        color: var(--warn);
+      }
+      .critical {
+        background: #fee4e2;
+        color: var(--danger);
+      }
+      @media (max-width: 680px) {
+        table,
+        thead,
+        tbody,
+        th,
+        td,
+        tr {
+          display: block;
+        }
+        th {
+          display: none;
+        }
+        td {
+          border: none;
+          border-bottom: 1px solid var(--line);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Manufacturing Inventory Dashboard</h1>
+
+      <section class="grid" id="summary"></section>
+
+      <section class="controls">
+        <h3>Filters</h3>
+        <div class="row">
+          <input id="search" placeholder="Search SKU / name / category" />
+          <select id="typeFilter">
+            <option value="">All types</option>
+            <option value="raw">Raw Material</option>
+            <option value="finished">Finished Goods</option>
+          </select>
+          <select id="lowStockFilter">
+            <option value="">All stock</option>
+            <option value="true">Low stock only</option>
+          </select>
+          <button onclick="loadAll()">Apply</button>
+        </div>
+      </section>
+
+      <section class="controls">
+        <h3>Add Inventory Item</h3>
+        <div class="row">
+          <input id="sku" placeholder="SKU" />
+          <input id="name" placeholder="Name" />
+          <input id="category" placeholder="Category" />
+          <select id="type">
+            <option value="raw">Raw</option>
+            <option value="finished">Finished</option>
+          </select>
+        </div>
+        <div class="row">
+          <input id="quantity" type="number" placeholder="Quantity" />
+          <input id="unit" placeholder="Unit (kg, pcs)" />
+          <input id="costPrice" type="number" placeholder="Cost Price" />
+          <input id="sellingPrice" type="number" placeholder="Selling Price" />
+          <input id="reorderLevel" type="number" placeholder="Reorder Level" />
+          <button onclick="addItem()">Add</button>
+        </div>
+      </section>
+
+      <section class="controls">
+        <h3>Import Dataset</h3>
+        <div class="row">
+          <input id="importPath" placeholder="Absolute path to .csv/.xlsx" style="min-width: 320px" />
+          <button onclick="importData()">Import</button>
+          <button class="alt" onclick="loadSample()">Load Sample</button>
+        </div>
+      </section>
+
+      <section class="table-panel">
+        <h3>Inventory Items</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Qty</th>
+              <th>Threshold</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="itemsBody"></tbody>
+        </table>
+      </section>
+
+      <section class="alerts">
+        <h3>Active Alerts</h3>
+        <button class="alt" onclick="loadAlerts()">Refresh Alerts</button>
+        <div id="alertsBody"></div>
+      </section>
+    </div>
+
+    <script>
+      function card(label, value) {
+        return `<article class="card"><div>${label}</div><div class="value">${value}</div></article>`;
+      }
+
+      async function api(path, options = {}) {
+        const res = await fetch(path, {
+          headers: { "Content-Type": "application/json" },
+          ...options
+        });
+        if (!res.ok) {
+          const msg = await res.text();
+          throw new Error(msg);
+        }
+        if (res.status === 204) return null;
+        return res.json();
+      }
+
+      async function loadSummary() {
+        const s = await api("/api/dashboard/summary");
+        document.getElementById("summary").innerHTML =
+          card("Total Items", s.totalItems) +
+          card("Raw Materials", s.rawMaterialItems) +
+          card("Finished Goods", s.finishedGoodsItems) +
+          card("Total Quantity", s.totalQuantity) +
+          card("Stock Value", Number(s.totalStockValue || 0).toFixed(2)) +
+          card("Active Alerts", s.activeAlerts);
+      }
+
+      async function loadItems() {
+        const q = new URLSearchParams();
+        const search = document.getElementById("search").value.trim();
+        const type = document.getElementById("typeFilter").value;
+        const lowStock = document.getElementById("lowStockFilter").value;
+        if (search) q.set("search", search);
+        if (type) q.set("type", type);
+        if (lowStock) q.set("lowStock", lowStock);
+
+        const items = await api(`/api/inventory/items?${q.toString()}`);
+        const body = document.getElementById("itemsBody");
+        body.innerHTML = items
+          .map(
+            (item) => `
+              <tr>
+                <td>${item.sku}</td>
+                <td>${item.name}</td>
+                <td>${item.type}</td>
+                <td>${item.quantity}</td>
+                <td>${item.reorderLevel}</td>
+                <td>
+                  <button onclick="adjustQty('${item.id}')">Adjust Qty</button>
+                  <button class="alt" onclick="setThreshold('${item.id}')">Set Alert</button>
+                  <button class="danger" onclick="removeItem('${item.id}')">Delete</button>
+                </td>
+              </tr>
+            `
+          )
+          .join("");
+      }
+
+      async function loadAlerts() {
+        const alerts = await api("/api/alerts/alerts");
+        const node = document.getElementById("alertsBody");
+        if (!alerts.length) {
+          node.innerHTML = "<p>No active low-stock alerts.</p>";
+          return;
+        }
+        node.innerHTML = alerts
+          .map(
+            (a) =>
+              `<p><span class="badge ${a.severity}">${a.severity}</span> ${a.sku} - ${a.name}: qty ${a.quantity}, threshold ${a.threshold}</p>`
+          )
+          .join("");
+      }
+
+      async function addItem() {
+        const payload = {
+          sku: document.getElementById("sku").value.trim(),
+          name: document.getElementById("name").value.trim(),
+          category: document.getElementById("category").value.trim() || "General",
+          type: document.getElementById("type").value,
+          quantity: Number(document.getElementById("quantity").value || 0),
+          unit: document.getElementById("unit").value.trim() || "pcs",
+          costPrice: Number(document.getElementById("costPrice").value || 0),
+          sellingPrice: Number(document.getElementById("sellingPrice").value || 0),
+          reorderLevel: Number(document.getElementById("reorderLevel").value || 0)
+        };
+        await api("/api/inventory/items", { method: "POST", body: JSON.stringify(payload) });
+        await loadAll();
+      }
+
+      async function adjustQty(id) {
+        const raw = prompt("Enter quantity change (positive or negative):", "0");
+        if (raw === null) return;
+        const change = Number(raw);
+        if (Number.isNaN(change)) return alert("Invalid number");
+        await api(`/api/inventory/items/${id}/quantity`, {
+          method: "PATCH",
+          body: JSON.stringify({ change })
+        });
+        await loadAll();
+      }
+
+      async function setThreshold(id) {
+        const raw = prompt("Set alert threshold:", "10");
+        if (raw === null) return;
+        const threshold = Number(raw);
+        if (Number.isNaN(threshold)) return alert("Invalid threshold");
+        await api(`/api/alerts/thresholds/${id}`, {
+          method: "PUT",
+          body: JSON.stringify({ threshold })
+        });
+        const allItems = await api("/api/inventory/items");
+        await api("/api/alerts/evaluate", { method: "POST", body: JSON.stringify({ items: allItems }) });
+        await loadAll();
+      }
+
+      async function removeItem(id) {
+        if (!confirm("Delete this item?")) return;
+        await api(`/api/inventory/items/${id}`, { method: "DELETE" });
+        await loadAll();
+      }
+
+      async function importData() {
+        const filePath = document.getElementById("importPath").value.trim();
+        if (!filePath) return alert("Provide file path");
+        await api("/api/inventory/seed/load", {
+          method: "POST",
+          body: JSON.stringify({ filePath })
+        });
+        await loadAll();
+      }
+
+      async function loadSample() {
+        await api("/api/inventory/seed/default", { method: "POST" });
+        await loadAll();
+      }
+
+      async function loadAll() {
+        try {
+          await Promise.all([loadSummary(), loadItems(), loadAlerts()]);
+        } catch (e) {
+          alert("Error: " + e.message);
+        }
+      }
+
+      loadAll();
+    </script>
+  </body>
+</html>

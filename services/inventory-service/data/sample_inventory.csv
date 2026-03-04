@@ -1,0 +1,9 @@
+sku,name,category,type,quantity,unit,costPrice,sellingPrice,reorderLevel
+RM-STEEL-01,Steel Sheets,Metals,raw,520,kg,42.5,0,150
+RM-ALU-01,Aluminium Rods,Metals,raw,290,kg,68,0,100
+RM-PLAS-01,Polymer Resin,Polymers,raw,190,kg,55,0,120
+RM-CHEM-01,Adhesive Compound,Chemicals,raw,85,litre,22,0,90
+FG-VALVE-01,Industrial Valve A,Hydraulics,finished,72,pcs,120,185,25
+FG-PUMP-01,Centrifugal Pump C100,Pumps,finished,34,pcs,620,890,20
+FG-NOZ-01,Precision Nozzle N9,Hydraulics,finished,18,pcs,48,92,30
+FG-SEAL-01,Rubber Seal Kit S,Accessories,finished,210,pcs,4.2,8.5,60

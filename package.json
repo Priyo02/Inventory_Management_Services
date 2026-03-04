@@ -1,0 +1,23 @@
+{
+  "name": "manufacturing-inventory-system",
+  "version": "1.0.0",
+  "description": "Microservices inventory management system with alerts and dashboard UI",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "dev:inventory": "node services/inventory-service/src/server.js",
+    "dev:alerts": "node services/alert-service/src/server.js",
+    "dev:gateway": "node services/api-gateway/src/server.js",
+    "dev": "concurrently -k -n INV,ALT,GW -c blue,green,magenta \"npm run dev:inventory\" \"npm run dev:alerts\" \"npm run dev:gateway\"",
+    "start": "npm run dev"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "morgan": "^1.10.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "thresholds": {},
+  "activeAlerts": [
+    {
+      "id": "alert_inv_kzvf02kw",
+      "itemId": "inv_kzvf02kw",
+      "sku": "RM-CHEM-01",
+      "name": "Adhesive Compound",
+      "category": "Chemicals",
+      "quantity": 85,
+      "threshold": 90,
+      "severity": "warning",
+      "createdAt": "2026-03-03T21:44:21.467Z"
+    },
+    {
+      "id": "alert_inv_9vbr4n5c",
+      "itemId": "inv_9vbr4n5c",
+      "sku": "FG-NOZ-01",
+      "name": "Precision Nozzle N9",
+      "category": "Hydraulics",
+      "quantity": 18,
+      "threshold": 30,
+      "severity": "warning",
+      "createdAt": "2026-03-03T21:44:21.467Z"
+    }
+  ]
+}
